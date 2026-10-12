@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IMS UG – Entry QR Code</title>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+  .card { background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.10); padding: 32px 28px 28px; max-width: 420px; width: 100%; }
+  .logo-wrap { text-align: center; margin-bottom: 18px; }
+  .logo-wrap img { height: 56px; }
+  h2 { text-align: center; color: #003087; font-size: 1.2rem; margin-bottom: 6px; }
+  .subtitle { text-align: center; color: #666; font-size: 0.85rem; margin-bottom: 22px; }
+  label { display: block; font-size: 0.85rem; color: #444; margin-bottom: 4px; font-weight: 600; }
+  select { width: 100%; padding: 10px 12px; border: 1.5px solid #c5d0de; border-radius: 8px; font-size: 0.97rem; margin-bottom: 16px; background: #f8fafc; color: #222; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+  select:focus { outline: none; border-color: #003087; }
+  select:disabled { opacity: 0.5; }
+  button { width: 100%; padding: 12px; background: #003087; color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; letter-spacing: 0.5px; transition: background 0.2s; margin-top: 4px; }
+  button:hover { background: #0044bb; }
+  button:disabled { background: #a0aec0; cursor: not-allowed; }
+  #qrSection { margin-top: 24px; display: none; text-align: center; }
+  #studentName { font-size: 1.1rem; font-weight: 700; color: #003087; margin-bottom: 4px; }
+  #batchLabel { font-size: 0.88rem; color: #555; margin-bottom: 14px; }
+  #qrCanvas { display: block; margin: 0 auto 16px; border-radius: 8px; }
+  #downloadBtn { display: inline-block; width: auto; padding: 10px 28px; font-size: 0.95rem; background: #1a7a4a; margin-top: 0; }
+  #downloadBtn:hover { background: #145e37; }
+  .pin-display { font-size: 0.78rem; color: #888; margin-top: 10px; }
+  .error { color: #c0392b; text-align: center; font-size: 0.9rem; margin-top: 8px; }
+  .loading { text-align: center; color: #666; font-size: 0.9rem; padding: 12px 0; }
+  .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid #c5d0de; border-top-color: #003087; border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 8px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .total-note { text-align: center; color: #aaa; font-size: 0.75rem; margin-top: 18px; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo-wrap">
+    <img src="data:image/webp;base64,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" alt="IMS Logo">
+  </div>
+  <h2>UG Programme – Entry QR Code</h2>
+  <p class="subtitle">Generate your personal QR code for event entry</p>
+
+  <div id="loadingMsg" class="loading"><span class="spinner"></span>Loading student data…</div>
+
+  <div id="formArea" style="display:none">
+    <label for="batchSelect">Select Your Batch</label>
+    <select id="batchSelect" onchange="populateNames()">
+      <option value="">— Choose Batch —</option>
+    </select>
+
+    <label for="nameSelect">Select Your Name</label>
+    <select id="nameSelect">
+      <option value="">— Choose Name —</option>
+    </select>
+
+    <button id="genBtn" onclick="generateQR()">Generate My QR Code</button>
+    <div id="errorMsg" class="error"></div>
+
+    <div id="qrSection">
+      <div id="studentName"></div>
+      <div id="batchLabel"></div>
+      <canvas id="qrCanvas"></canvas>
+      <button id="downloadBtn" onclick="downloadQR()">⬇ Download QR Pass</button>
+      <div class="pin-display" id="pinDisplay"></div>
+    </div>
+
+    <div class="total-note" id="totalNote"></div>
+  </div>
+
+  <div id="fetchError" class="error" style="display:none">
+    Could not load student data. Please check your internet connection and refresh.
+  </div>
+</div>
+
+<script>
+// ── REPLACE THIS URL after you deploy the Apps Script ──
+var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxL2QNItp_6iu4K2c9FtRpQuyL-F82JkKWyJiKtkHqpWhpMfS1nIWj1JKNMlEfByj5pIw/exec';
+
+var DB = {};
+
+window.addEventListener('load', function() {
+  fetch(SCRIPT_URL)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      DB = data;
+      var batchSel = document.getElementById('batchSelect');
+      Object.keys(DB).sort().forEach(function(b) {
+        var opt = document.createElement('option');
+        opt.value = b;
+        opt.textContent = b + ' (' + DB[b].length + ')';
+        batchSel.appendChild(opt);
+      });
+      var total = Object.values(DB).reduce(function(s, a) { return s + a.length; }, 0);
+      document.getElementById('totalNote').textContent =
+        'UG Programmes · ' + total + ' students · ' + Object.keys(DB).length + ' batches';
+      document.getElementById('loadingMsg').style.display = 'none';
+      document.getElementById('formArea').style.display = 'block';
+    })
+    .catch(function() {
+      document.getElementById('loadingMsg').style.display = 'none';
+      document.getElementById('fetchError').style.display = 'block';
+    });
+});
+
+function populateNames() {
+  var batch = document.getElementById('batchSelect').value;
+  var nameSel = document.getElementById('nameSelect');
+  nameSel.innerHTML = '<option value="">— Choose Name —</option>';
+  document.getElementById('qrSection').style.display = 'none';
+  document.getElementById('errorMsg').textContent = '';
+  if (!batch) return;
+  DB[batch].forEach(function(st, i) {
+    var opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = st.name;
+    nameSel.appendChild(opt);
+  });
+}
+
+function generateQR() {
+  var batch = document.getElementById('batchSelect').value;
+  var idx   = document.getElementById('nameSelect').value;
+  var errEl = document.getElementById('errorMsg');
+  errEl.textContent = '';
+  if (!batch) { errEl.textContent = 'Please select your batch first.'; return; }
+  if (idx === '') { errEl.textContent = 'Please select your name.'; return; }
+
+  var student = DB[batch][parseInt(idx)];
+  var payload = JSON.stringify({ pin: student.pin, name: student.name, batch: batch });
+
+  var qr = qrcode(0, 'M');
+  qr.addData(payload);
+  qr.make();
+
+  var modules  = qr.getModuleCount();
+  var cellSize = 8;
+  var margin   = 3;
+  var size     = (modules + margin * 2) * cellSize;
+  var qrCanvas = document.getElementById('qrCanvas');
+  qrCanvas.width  = size;
+  qrCanvas.height = size;
+  var ctx = qrCanvas.getContext('2d');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, size, size);
+  ctx.fillStyle = '#000000';
+  for (var row = 0; row < modules; row++) {
+    for (var col = 0; col < modules; col++) {
+      if (qr.isDark(row, col)) {
+        ctx.fillRect((col + margin) * cellSize, (row + margin) * cellSize, cellSize, cellSize);
+      }
+    }
+  }
+
+  document.getElementById('studentName').textContent = student.name;
+  document.getElementById('batchLabel').textContent  = 'Batch: ' + batch;
+  document.getElementById('pinDisplay').textContent  = 'IMS PIN: ' + student.pin;
+  document.getElementById('qrSection').style.display = 'block';
+}
+
+function downloadQR() {
+  var batch   = document.getElementById('batchSelect').value;
+  var idx     = document.getElementById('nameSelect').value;
+  var student = DB[batch][parseInt(idx)];
+
+  var qrCanvas = document.getElementById('qrCanvas');
+  var qw = qrCanvas.width, qh = qrCanvas.height;
+  var pad = 24, barH = 56, textH = 64;
+  var cW = qw + pad * 2, cH = barH + qh + textH + pad;
+
+  var out = document.createElement('canvas');
+  out.width = cW; out.height = cH;
+  var ctx = out.getContext('2d');
+
+  ctx.fillStyle = '#003087';
+  ctx.fillRect(0, 0, cW, barH);
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 22px Segoe UI, Arial, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('IMS UG Entry Pass', cW / 2, 36);
+
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, barH, cW, qh + pad);
+  ctx.drawImage(qrCanvas, pad, barH + pad / 2);
+
+  var infoY = barH + qh + pad;
+  ctx.fillStyle = '#003087';
+  ctx.fillRect(0, infoY, cW, textH);
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 17px Segoe UI, Arial, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(student.name, cW / 2, infoY + 22);
+  ctx.font = '14px Segoe UI, Arial, sans-serif';
+  ctx.fillText('Batch: ' + batch, cW / 2, infoY + 42);
+  ctx.font = '12px Segoe UI, Arial, sans-serif';
+  ctx.fillStyle = '#b0c4e8';
+  ctx.fillText(student.pin, cW / 2, infoY + 58);
+
+  var a = document.createElement('a');
+  a.download = 'IMS_UG_QR_' + student.pin + '.png';
+  a.href = out.toDataURL('image/png');
+  a.click();
+}
+</script>
+</body>
+</html>
